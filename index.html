@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<title>LaguAnim-Arc X Rams</title>
+<style>
+:root{--bg:#121212;--bg2:#181818;--card:#1f1f1f;--card2:#2a2a2a;--tx:#fff;--tx2:#b3b3b3;--green:#1ed760;--red:#ff4d4f;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{min-height:100vh;padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select{font:inherit;color:var(--tx)}
+.hidden{display:none!important}
+.logo{font-weight:800;font-size:1.05rem;letter-spacing:-.3px;white-space:nowrap}
+.logo span{color:var(--green)}
+.btn{background:var(--green);color:#000;font-weight:700;padding:12px 22px;border-radius:999px;transition:.15s}
+.btn:hover{transform:scale(1.03);filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid #666}
+.btn.sm{padding:7px 14px;font-size:.82rem}
+.btn.danger{background:var(--red);color:#fff}
+.field{display:block;margin-bottom:14px}
+.field label{display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:var(--tx2)}
+.field input,.field select{width:100%;background:var(--card2);border:1px solid #3a3a3a;border-radius:8px;padding:12px 14px;outline:0}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.field select option{background:#222}
+
+/* AUTH & GENRE */
+.center{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 20% 0%,#1b3a2a 0,#121212 55%)}
+.box{width:100%;max-width:420px;background:var(--bg2);border-radius:18px;padding:28px 24px;box-shadow:0 10px 40px #000a}
+.box .logo{font-size:1.4rem;text-align:center;margin-bottom:6px}
+.box p.sub{text-align:center;color:var(--tx2);font-size:.9rem;margin-bottom:22px}
+.tabs2{display:flex;background:var(--card2);border-radius:999px;padding:4px;margin-bottom:20px}
+.tabs2 button{flex:1;padding:9px;border-radius:999px;font-weight:600;color:var(--tx2)}
+.tabs2 button.on{background:var(--green);color:#000}
+.err{color:var(--red);font-size:.85rem;margin:-4px 0 12px;min-height:1em}
+.genre-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}
+.genre-grid button{padding:18px 8px;border-radius:var(--r);background:var(--card2);font-weight:700;border:2px solid transparent;transition:.15s}
+.genre-grid button.on{border-color:var(--green);background:#1b3a2a}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:20;background:rgba(18,18,18,.95);backdrop-filter:blur(10px);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #222}
+.search{flex:1;min-width:150px;position:relative}
+.search input{width:100%;background:var(--card2);border:0;border-radius:999px;padding:11px 16px 11px 40px;outline:0}
+.search:before{content:"🔍";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.85rem}
+.me{display:flex;align-items:center;gap:8px}
+.badge{font-size:.68rem;font-weight:800;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:#333}
+.badge.owner{background:#f5c518;color:#000}.badge.reseller{background:var(--green);color:#000}
+.me small{color:var(--tx2);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:8px;padding:12px 16px 0;overflow-x:auto}
+nav button{padding:8px 18px;border-radius:999px;background:var(--card);font-weight:600;font-size:.9rem;white-space:nowrap}
+nav button.on{background:#fff;color:#000}
+main{padding:16px}
+h2{font-size:1.25rem;margin:6px 0 14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:6px}
+.chips button{padding:7px 16px;border-radius:999px;background:var(--card);font-size:.85rem;white-space:nowrap}
+.chips button.on{background:var(--green);color:#000;font-weight:700}
+
+/* SONG GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.card{background:var(--card);border-radius:var(--r);padding:12px;cursor:pointer;position:relative;transition:.2s}
+.card:hover{background:var(--card2)}
+.card.playing{outline:2px solid var(--green)}
+.cover{width:100%;aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,#1ed760,#0a5c2b);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:2.2rem;overflow:hidden;margin-bottom:10px}
+.cover img{width:100%;height:100%;object-fit:cover}
+.card h4{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card p{font-size:.8rem;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.card .g{display:inline-block;margin-top:6px;font-size:.68rem;padding:2px 8px;border-radius:999px;background:#333}
+.card .del{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:#000a;font-size:.8rem}
+.empty{text-align:center;color:var(--tx2);padding:50px 10px}
+
+/* PANELS */
+.panel{background:var(--bg2);border-radius:var(--r);padding:18px;max-width:560px;margin-bottom:22px}
+.urow{background:var(--card);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.urow .em{flex:1 1 200px;min-width:0;word-break:break-all;font-size:.9rem}
+.urow .em small{display:block;color:var(--tx2);margin-top:2px}
+.urow select{background:var(--card2);border:1px solid #3a3a3a;border-radius:8px;padding:7px 10px}
+.note{font-size:.8rem;color:var(--tx2);background:var(--card);padding:10px 12px;border-radius:8px;margin-bottom:14px;line-height:1.5}
+
+/* PLAYER */
+#player{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#000;border-top:1px solid #222;padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 2fr 1fr;gap:12px;align-items:center}
+.pinfo{display:flex;align-items:center;gap:10px;min-width:0}
+.pinfo .cv{width:48px;height:48px;border-radius:6px;background:linear-gradient(135deg,#1ed760,#0a5c2b);flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pinfo .cv img{width:100%;height:100%;object-fit:cover}
+.pinfo div{min-width:0}
+.pinfo b{display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pinfo small{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.pmid{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ctrl{display:flex;align-items:center;gap:18px}
+.ctrl button{font-size:1.25rem;opacity:.85}.ctrl button:hover{opacity:1}
+.ctrl .play{width:42px;height:42px;border-radius:50%;background:#fff;color:#000;font-size:1.1rem;opacity:1}
+.bar{display:flex;align-items:center;gap:8px;width:100%;font-size:.72rem;color:var(--tx2)}
+.bar span{min-width:36px;text-align:center}
+input[type=range]{-webkit-appearance:none;appearance:none;height:5px;border-radius:5px;background:#4d4d4d;outline:0;flex:1;width:100%}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#fff}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fff}
+.vol{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.vol input{max-width:110px}
+#toast{position:fixed;left:50%;bottom:170px;transform:translateX(-50%);background:#333;padding:10px 18px;border-radius:999px;font-size:.88rem;z-index:50;opacity:0;pointer-events:none;transition:.25s;max-width:90%;text-align:center}
+#toast.show{opacity:1}
+@media(max-width:700px){
+ #player{grid-template-columns:1fr auto;grid-template-areas:"info vol" "mid mid";row-gap:6px}
+ .pinfo{grid-area:info}.pmid{grid-area:mid}.vol{grid-area:vol}
+ .vol input{max-width:80px}
+ .me small{display:none}
+ .grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN / DAFTAR -->
+<section id="authScreen" class="center hidden">
+ <div class="box">
+  <div class="logo">🎧 LaguAnim-<span>Arc</span> X Rams</div>
+  <p class="sub">Streaming lagu favoritmu</p>
+  <div class="tabs2"><button id="tabLogin" class="on">Masuk</button><button id="tabReg">Daftar</button></div>
+  <form id="authForm">
+   <div class="field"><label>Email</label><input type="email" id="aEmail" required autocomplete="email" placeholder="nama@email.com"></div>
+   <div class="field"><label>Password</label><input type="password" id="aPass" required minlength="6" autocomplete="current-password" placeholder="Minimal 6 karakter"></div>
+   <div class="field hidden" id="confWrap"><label>Ulangi Password</label><input type="password" id="aPass2" autocomplete="new-password"></div>
+   <div class="err" id="authErr"></div>
+   <button class="btn" id="authBtn" style="width:100%">Masuk</button>
+  </form>
+  <p style="text-align:center;margin-top:14px"><button id="forgotBtn" style="color:var(--tx2);font-size:.85rem;text-decoration:underline">Lupa password?</button></p>
+ </div>
+</section>
+
+<!-- PILIH GENRE -->
+<section id="genreScreen" class="center hidden">
+ <div class="box">
+  <div class="logo">Pilih Genre Favoritmu</div>
+  <p class="sub">Wajib dipilih satu kali untuk mulai mendengarkan</p>
+  <div class="genre-grid" id="genreGrid"></div>
+  <div class="err" id="genreErr"></div>
+  <button class="btn" id="genreSave" style="width:100%" disabled>Simpan &amp; Lanjut</button>
+  <p style="text-align:center;margin-top:14px"><button class="logoutBtn" style="color:var(--tx2);font-size:.85rem;text-decoration:underline">Keluar</button></p>
+ </div>
+</section>
+
+<!-- APLIKASI -->
+<div id="app" class="hidden">
+ <header>
+  <div class="logo">🎧 LaguAnim-<span>Arc</span> X Rams</div>
+  <div class="search"><input id="searchInp" type="search" placeholder="Cari judul atau artis..."></div>
+  <div class="me"><span class="badge" id="roleBadge">user</span><small id="meEmail"></small><button class="btn ghost sm logoutBtn">Logout</button></div>
+ </header>
+ <nav>
+  <button data-v="home" class="on">🏠 Beranda</button>
+  <button data-v="upload" id="navUpload" class="hidden">⬆️ Upload</button>
+  <button data-v="admin" id="navAdmin" class="hidden">🛠️ Admin</button>
+ </nav>
+ <main>
+  <section id="v-home">
+   <div class="chips" id="chips"></div>
+   <div class="grid" id="songGrid"></div>
+  </section>
+
+  <section id="v-upload" class="hidden">
+   <h2>Upload Lagu (Link)</h2>
+   <div class="panel">
+    <div class="note">Isi dengan <b>link MP3</b> (Google Drive / Dropbox / hosting lain) dan <b>link gambar cover</b>. Google Drive: set akses "Siapa saja yang memiliki link". Link Google Drive dikonversi otomatis. Catatan: link halaman MediaFire biasanya tidak bisa diputar langsung, gunakan link direct (.mp3).</div>
+    <form id="upForm">
+     <div class="field"><label>Judul Lagu</label><input id="uTitle" required maxlength="100"></div>
+     <div class="field"><label>Artis</label><input id="uArtist" required maxlength="100"></div>
+     <div class="field"><label>Genre</label><select id="uGenre" required></select></div>
+     <div class="field"><label>Link Lagu MP3</label><input id="uUrl" type="url" required placeholder="https://..."></div>
+     <div class="field"><label>Link Cover Gambar</label><input id="uCover" type="url" required placeholder="https://..."></div>
+     <button class="btn" id="upBtn" style="width:100%">Simpan Lagu</button>
+    </form>
+   </div>
+   <h2>Lagu Saya</h2>
+   <div class="grid" id="mySongs"></div>
+  </section>
+
+  <section id="v-admin" class="hidden">
+   <h2>Kelola Pengguna</h2>
+   <div class="note">Ubah role, kirim email reset password, atau hapus data user. Catatan: dari sisi web, password user tidak bisa diganti langsung (butuh Firebase Admin SDK di server), jadi gunakan tombol <b>Reset Password</b> yang mengirim email. "Hapus" menghapus data user di database; akun login-nya juga hapus manual di Firebase Console &rarr; Authentication.</div>
+   <div id="userList"></div>
+  </section>
+ </main>
+</div>
+
+<!-- PLAYER -->
+<div id="player" class="hidden">
+ <div class="pinfo"><div class="cv" id="pCover">🎵</div><div><b id="pTitle">Belum ada lagu</b><small id="pArtist">Pilih lagu untuk diputar</small></div></div>
+ <div class="pmid">
+  <div class="ctrl"><button id="prevBtn" title="Sebelumnya">⏮</button><button id="playBtn" class="play" title="Play/Pause">▶</button><button id="nextBtn" title="Berikutnya">⏭</button></div>
+  <div class="bar"><span id="tNow">0:00</span><input type="range" id="seek" min="0" max="1000" value="0"><span id="tDur">0:00</span></div>
+ </div>
+ <div class="vol"><button id="muteBtn">🔊</button><input type="range" id="volume" min="0" max="100" value="80"></div>
+ <audio id="audio" preload="none"></audio>
+</div>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCR4Zt7aXg_0WzEehm7pI9gM8h2dC9kS7s",
+  authDomain: "arclagu.firebaseapp.com",
+  databaseURL: "https://arclagu-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "arclagu",
+  storageBucket: "arclagu.firebasestorage.app",
+  messagingSenderId: "1035205510814",
+  appId: "1:1035205510814:web:3f9cfa3d2b6a7d8aaeebf8"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const GENRES = ['Pop','Dangdut','Rock','Hip-Hop','K-Pop','EDM','Lo-Fi','Religi'];
+const OWNER_EMAIL = 'arclaguofficial@gmail.com';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let me = null, myData = null, songs = [], users = {};
+let filterGenre = 'Semua', query = '', queue = [], curId = null, regMode = false, pickedGenre = null;
+let songsRef = null, usersRef = null;
+
+/* ---------- Util ---------- */
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove('show'),2800); }
+function show(id){ ['authScreen','genreScreen','app'].forEach(x=>$(x).classList.toggle('hidden',x!==id)); $('player').classList.toggle('hidden',id!=='app'); }
+function fmt(s){ if(!isFinite(s)) return '0:00'; s=Math.floor(s); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function authMsg(e){
+  const m={'auth/invalid-email':'Format email tidak valid.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Password salah.','auth/invalid-credential':'Email atau password salah.','auth/email-already-in-use':'Email sudah terdaftar.','auth/weak-password':'Password minimal 6 karakter.','auth/too-many-requests':'Terlalu banyak percobaan, coba lagi nanti.','auth/network-request-failed':'Koneksi internet bermasalah.','auth/missing-password':'Password wajib diisi.'};
+  return m[e.code] || ('Terjadi kesalahan: ' + (e.message||e));
+}
+function directLink(u){
+  u = (u||'').trim();
+  let m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || u.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([\w-]+)/);
+  if(m) return 'https://drive.google.com/uc?export=download&id=' + m[1];
+  if(/dropbox\.com/.test(u)){ u=u.replace('www.dropbox.com','dl.dropboxusercontent.com').replace(/[?&]dl=0/,''); }
+  return u;
+}
+function coverLink(u){
+  u=(u||'').trim();
+  const m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/)||u.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([\w-]+)/);
+  if(m) return 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w600';
+  if(/dropbox\.com/.test(u)) return u.replace('www.dropbox.com','dl.dropboxusercontent.com').replace(/[?&]dl=0/,'');
+  return u;
+}
+const isRes = () => myData && (myData.role==='reseller' || myData.role==='owner');
+const isOwner = () => myData && myData.role==='owner';
+
+/* ---------- AUTH UI ---------- */
+function setMode(reg){
+  regMode = reg;
+  $('tabLogin').classList.toggle('on',!reg); $('tabReg').classList.toggle('on',reg);
+  $('confWrap').classList.toggle('hidden',!reg);
+  $('authBtn').textContent = reg ? 'Daftar' : 'Masuk';
+  $('aPass').autocomplete = reg ? 'new-password' : 'current-password';
+  $('authErr').textContent='';
+}
+$('tabLogin').onclick=()=>setMode(false);
+$('tabReg').onclick=()=>setMode(true);
+$('authForm').onsubmit = async e => {
+  e.preventDefault();
+  const email=$('aEmail').value.trim(), pass=$('aPass').value;
+  $('authErr').textContent='';
+  if(regMode && pass!==$('aPass2').value){ $('authErr').textContent='Konfirmasi password tidak sama.'; return; }
+  $('authBtn').disabled=true;
+  try{
+    if(regMode) await auth.createUserWithEmailAndPassword(email,pass);
+    else await auth.signInWithEmailAndPassword(email,pass);
+  }catch(err){ $('authErr').textContent=authMsg(err); }
+  $('authBtn').disabled=false;
+};
+$('forgotBtn').onclick = async () => {
+  const email=$('aEmail').value.trim();
+  if(!email){ $('authErr').textContent='Isi email dulu, lalu klik "Lupa password?".'; return; }
+  try{ await auth.sendPasswordResetEmail(email); toast('Email reset password dikirim ke '+email); }
+  catch(err){ $('authErr').textContent=authMsg(err); }
+};
+document.querySelectorAll('.logoutBtn').forEach(b=>b.onclick=()=>auth.signOut());
+
+/* ---------- GENRE ---------- */
+$('genreGrid').innerHTML = GENRES.map(g=>`<button data-g="${g}">${g}</button>`).join('');
+$('genreGrid').onclick = e => {
+  const b=e.target.closest('button'); if(!b) return;
+  pickedGenre=b.dataset.g;
+  document.querySelectorAll('#genreGrid button').forEach(x=>x.classList.toggle('on',x===b));
+  $('genreSave').disabled=false;
+};
+$('genreSave').onclick = async () => {
+  if(!pickedGenre||!me) return;
+  $('genreSave').disabled=true;
+  try{
+    await db.ref('users/'+me.uid+'/genre').set(pickedGenre);
+    myData.genre=pickedGenre; startApp();
+  }catch(err){ $('genreErr').textContent='Gagal menyimpan: '+err.message; $('genreSave').disabled=false; }
+};
+
+/* ---------- STATE AUTH ---------- */
+auth.onAuthStateChanged(async u => {
+  if(!u){
+    me=null; myData=null; detach(); stopPlayer(); show('authScreen'); return;
+  }
+  me=u;
+  try{
+    const owner = (u.email||'').toLowerCase()===OWNER_EMAIL;
+    const ref = db.ref('users/'+u.uid);
+    let d = (await ref.once('value')).val();
+    if(!d){
+      const up={}; const base='users/'+u.uid+'/';
+      d={email:u.email, role: owner?'owner':'user', createdAt: Date.now(), genre:null};
+      up[base+'email']=d.email; up[base+'role']=d.role; up[base+'createdAt']=d.createdAt;
+      await db.ref().update(up);
+    } else if(owner && d.role!=='owner'){
+      await ref.child('role').set('owner'); d.role='owner';
+    }
+    myData=d;
+    if(!d.genre){ pickedGenre=null; $('genreSave').disabled=true; document.querySelectorAll('#genreGrid button').forEach(x=>x.classList.remove('on')); show('genreScreen'); }
+    else startApp();
+  }catch(err){
+    toast('Gagal memuat data: '+err.message); show('authScreen');
+  }
+});
+
+function detach(){ if(songsRef){songsRef.off();songsRef=null;} if(usersRef){usersRef.off();usersRef=null;} songs=[];users={}; }
+
+/* ---------- APP ---------- */
+function startApp(){
+  detach();
+  show('app');
+  $('meEmail').textContent=me.email;
+  const rb=$('roleBadge'); rb.textContent=myData.role; rb.className='badge '+myData.role;
+  $('navUpload').classList.toggle('hidden',!isRes());
+  $('navAdmin').classList.toggle('hidden',!isOwner());
+  $('uGenre').innerHTML=GENRES.map(g=>`<option>${g}</option>`).join('');
+  switchView('home'); buildChips();
+  songsRef=db.ref('songs');
+  songsRef.on('value', s=>{
+    const v=s.val()||{};
+    songs=Object.keys(v).map(k=>({id:k,...v[k]})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    renderSongs(); renderMine();
+  }, err=>toast('Gagal memuat lagu: '+err.message));
+  if(isOwner()){
+    usersRef=db.ref('users');
+    usersRef.on('value', s=>{ users=s.val()||{}; renderUsers(); }, err=>toast('Gagal memuat user: '+err.message));
+  }
+}
+document.querySelector('nav').onclick = e => { const b=e.target.closest('button'); if(b) switchView(b.dataset.v); };
+function switchView(v){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  ['home','upload','admin'].forEach(x=>$('v-'+x).classList.toggle('hidden',x!==v));
+}
+function buildChips(){
+  const list=['Semua',...GENRES];
+  $('chips').innerHTML=list.map(g=>`<button data-g="${g}" class="${g===filterGenre?'on':''}">${g==='Semua'?'Semua':g}${myData&&g===myData.genre?' ⭐':''}</button>`).join('');
+}
+$('chips').onclick = e => { const b=e.target.closest('button'); if(!b) return; filterGenre=b.dataset.g; buildChips(); renderSongs(); };
+$('searchInp').oninput = e => { query=e.target.value.trim().toLowerCase(); switchView('home'); renderSongs(); };
+
+function filtered(){
+  return songs.filter(s=>(filterGenre==='Semua'||s.genre===filterGenre) && (!query || ((s.title||'')+' '+(s.artist||'')).toLowerCase().includes(query)));
+}
+function cardHTML(s){
+  const canDel = isOwner() || (myData.role==='reseller' && s.uid===me.uid);
+  return `<div class="card ${s.id===curId?'playing':''}" data-id="${esc(s.id)}">
+    ${canDel?`<button class="del" data-del="${esc(s.id)}" title="Hapus">🗑</button>`:''}
+    <div class="cover">${s.cover?`<img loading="lazy" referrerpolicy="no-referrer" src="${esc(coverLink(s.cover))}" onerror="this.remove()" alt="">`:''}<span style="position:absolute;z-index:-1">🎵</span></div>
+    <h4>${esc(s.title)}</h4><p>${esc(s.artist)}</p><span class="g">${esc(s.genre)}</span></div>`;
+}
+function renderSongs(){
+  const l=filtered(); queue=l;
+  $('songGrid').innerHTML = l.length ? l.map(cardHTML).join('') : `<div class="empty" style="grid-column:1/-1">${songs.length?'Tidak ada lagu yang cocok.':'Belum ada lagu. Reseller dapat menambahkan lagu lewat menu Upload.'}</div>`;
+}
+function renderMine(){
+  if(!isRes()) return;
+  const l=songs.filter(s=>isOwner()||s.uid===me.uid);
+  $('mySongs').innerHTML = l.length ? l.map(cardHTML).join('') : '<div class="empty" style="grid-column:1/-1">Belum ada lagu.</div>';
+}
+async function onGridClick(e){
+  const del=e.target.closest('[data-del]');
+  if(del){
+    e.stopPropagation();
+    const s=songs.find(x=>x.id===del.dataset.del);
+    if(s && confirm('Hapus lagu "'+s.title+'"?')){
+      try{ await db.ref('songs/'+s.id).remove(); if(curId===s.id) stopPlayer(); toast('Lagu dihapus'); }
+      catch(err){ toast('Gagal hapus: '+err.message); }
+    }
+    return;
+  }
+  const c=e.target.closest('.card'); if(!c) return;
+  const q=(e.currentTarget.id==='songGrid')?filtered():songs.filter(s=>isOwner()||s.uid===me.uid);
+  queue=q; play(c.dataset.id);
+}
+$('songGrid').onclick=onGridClick; $('mySongs').onclick=onGridClick;
+
+/* ---------- UPLOAD ---------- */
+$('upForm').onsubmit = async e => {
+  e.preventDefault();
+  if(!isRes()){ toast('Tidak punya izin upload'); return; }
+  const url=$('uUrl').value.trim(), cover=$('uCover').value.trim();
+  if(!/^https?:\/\//i.test(url)||!/^https?:\/\//i.test(cover)){ toast('Link harus diawali http:// atau https://'); return; }
+  $('upBtn').disabled=true;
+  try{
+    await db.ref('songs').push({
+      title:$('uTitle').value.trim(), artist:$('uArtist').value.trim(), genre:$('uGenre').value,
+      url, cover, uid:me.uid, uploaderEmail:me.email, createdAt:firebase.database.ServerValue.TIMESTAMP
+    });
+    $('upForm').reset(); toast('Lagu berhasil disimpan ✅');
+  }catch(err){ toast('Gagal menyimpan: '+err.message); }
+  $('upBtn').disabled=false;
+};
+
+/* ---------- ADMIN ---------- */
+function renderUsers(){
+  const ids=Object.keys(users).sort((a,b)=>(users[a].email||'').localeCompare(users[b].email||''));
+  $('userList').innerHTML = ids.length ? ids.map(uid=>{
+    const u=users[uid], self=uid===me.uid, own=u.role==='owner';
+    return `<div class="urow" data-uid="${esc(uid)}">
+      <div class="em">${esc(u.email)}<small>Genre: ${esc(u.genre||'-')}</small></div>
+      <select data-role ${own?'disabled':''}>
+        ${['user','reseller'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+        ${own?'<option selected>owner</option>':''}
+      </select>
+      <button class="btn ghost sm" data-reset>Reset Password</button>
+      ${self||own?'':'<button class="btn danger sm" data-rm>Hapus</button>'}
+    </div>`;
+  }).join('') : '<div class="empty">Belum ada user.</div>';
+}
+$('userList').onchange = async e => {
+  const sel=e.target.closest('[data-role]'); if(!sel) return;
+  const uid=sel.closest('.urow').dataset.uid;
+  try{ await db.ref('users/'+uid+'/role').set(sel.value); toast('Role diubah ke '+sel.value); }
+  catch(err){ toast('Gagal: '+err.message); renderUsers(); }
+};
+$('userList').onclick = async e => {
+  const row=e.target.closest('.urow'); if(!row) return;
+  const uid=row.dataset.uid, u=users[uid];
+  if(e.target.closest('[data-reset]')){
+    try{ await auth.sendPasswordResetEmail(u.email); toast('Email reset dikirim ke '+u.email); }
+    catch(err){ toast(authMsg(err)); }
+  }
+  if(e.target.closest('[data-rm]')){
+    if(!confirm('Hapus data user '+u.email+'?')) return;
+    try{ await db.ref('users/'+uid).remove(); toast('Data user dihapus'); }
+    catch(err){ toast('Gagal hapus: '+err.message); }
+  }
+};
+
+/* ---------- PLAYER ---------- */
+const audio=$('audio'); let seeking=false;
+function setCover(s){
+  $('pCover').innerHTML = s&&s.cover ? `<img referrerpolicy="no-referrer" src="${esc(coverLink(s.cover))}" onerror="this.remove()" alt="">` : '🎵';
+}
+function play(id){
+  const s=songs.find(x=>x.id===id); if(!s) return;
+  curId=id;
+  audio.src=directLink(s.url);
+  audio.play().catch(()=>{});
+  $('pTitle').textContent=s.title; $('pArtist').textContent=s.artist; setCover(s);
+  document.title=s.title+' • LaguAnim-Arc X Rams';
+  document.querySelectorAll('.card').forEach(c=>c.classList.toggle('playing',c.dataset.id===id));
+  if('mediaSession' in navigator){
+    navigator.mediaSession.metadata=new MediaMetadata({title:s.title,artist:s.artist,artwork:s.cover?[{src:coverLink(s.cover)}]:[]});
+    navigator.mediaSession.setActionHandler('previoustrack',prev);
+    navigator.mediaSession.setActionHandler('nexttrack',next);
+  }
+}
+function stopPlayer(){
+  audio.pause(); audio.removeAttribute('src'); audio.load(); curId=null;
+  $('pTitle').textContent='Belum ada lagu'; $('pArtist').textContent='Pilih lagu untuk diputar'; setCover(null);
+  $('playBtn').textContent='▶'; $('seek').value=0; $('tNow').textContent='0:00'; $('tDur').textContent='0:00';
+  document.title='LaguAnim-Arc X Rams';
+}
+function step(d){
+  if(!queue.length) return;
+  let i=queue.findIndex(s=>s.id===curId);
+  i = i<0 ? 0 : (i+d+queue.length)%queue.length;
+  play(queue[i].id);
+}
+function next(){ step(1); } function prev(){ if(audio.currentTime>3){audio.currentTime=0;} else step(-1); }
+$('playBtn').onclick=()=>{
+  if(!audio.src){ if(queue.length) play(queue[0].id); else toast('Belum ada lagu'); return; }
+  audio.paused?audio.play().catch(()=>{}):audio.pause();
+};
+$('nextBtn').onclick=next; $('prevBtn').onclick=prev;
+audio.onplay=()=>$('playBtn').textContent='⏸';
+audio.onpause=()=>$('playBtn').textContent='▶';
+audio.onended=next;
+audio.onerror=()=>{ if(audio.getAttribute('src')) toast('Lagu tidak bisa diputar. Periksa link MP3 (harus direct & publik).'); };
+audio.onloadedmetadata=()=>$('tDur').textContent=fmt(audio.duration);
+audio.ontimeupdate=()=>{
+  $('tNow').textContent=fmt(audio.currentTime);
+  if(!seeking && audio.duration) $('seek').value=audio.currentTime/audio.duration*1000;
+};
+$('seek').oninput=()=>{ seeking=true; if(audio.duration) $('tNow').textContent=fmt($('seek').value/1000*audio.duration); };
+$('seek').onchange=()=>{ if(audio.duration) audio.currentTime=$('seek').value/1000*audio.duration; seeking=false; };
+audio.volume=.8;
+$('volume').oninput=e=>{ audio.volume=e.target.value/100; audio.muted=false; $('muteBtn').textContent=audio.volume===0?'🔇':'🔊'; };
+$('muteBtn').onclick=()=>{ audio.muted=!audio.muted; $('muteBtn').textContent=audio.muted?'🔇':'🔊'; };
+</script>
+</body>
+</html>
